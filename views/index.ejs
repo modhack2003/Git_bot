@@ -4,52 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commit Bot</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
-            width: 100%;
-        }
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .help {
-            margin-top: 20px;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-    </style>
 </head>
 <body>
     <h1>Commit Bot</h1>
-    <form action="https://<your-backend-url>/start-commit" method="post">
+    <form action="/start-commit" method="post">
         <label for="commitCount">Number of Commits:</label>
-        <input type="number" id="commitCount" name="commitCount" required><br><br>
+        <input 
+            type="number" 
+            id="commitCount" 
+            name="commitCount" 
+            required 
+        /><br/><br/>
 
         <label for="commitYear">Year for Commits:</label>
-        <input type="number" id="commitYear" name="commitYear" required><br><br>
+        <input 
+            type="number" 
+            id="commitYear" 
+            name="commitYear" 
+            required 
+        /><br/><br/>
 
         <label for="username">GitHub Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            required 
+        /><br/><br/>
 
         <label for="token">GitHub Token:</label>
-        <input type="password" id="token" name="token" required><br><br>
+        <input 
+            type="password" 
+            id="token" 
+            name="token" 
+            required 
+        /><br/><br/>
 
         <button type="submit">Start Commits</button>
     </form>
@@ -68,7 +57,7 @@
         <h3>Generating a GitHub Token</h3>
         <p>To generate a GitHub token:</p>
         <ol>
-            <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings</a>.</li>
+            <li>Go to <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">GitHub Settings</a>.</li>
             <li>Click on <strong>Generate new token</strong>.</li>
             <li>Select the scopes you need (e.g., <strong>repo</strong> for full control of private repositories).</li>
             <li>Click <strong>Generate token</strong>.</li>

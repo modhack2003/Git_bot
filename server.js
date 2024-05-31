@@ -1,56 +1,55 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import moment from 'moment';
-import simpleGit from 'simple-git';
-import random from 'random';
-import jsonfile from 'jsonfile';
-
-const FILE_PATH = './data.json';
+const express = require('express');
+const bodyParser = require('body-parser');
+const moment = require('moment');
+const simpleGit = require('simple-git')();
+const jsonfile = require('jsonfile');
+const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const FILE_PATH = './data.json';
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
-const makeCommit = async (n, year, username, token) => {
-    const git = simpleGit().env({
-        GIT_AUTHOR_NAME: username,
-        GIT_AUTHOR_EMAIL: `${username}@users.noreply.github.com`,
-        GIT_COMMITTER_NAME: username,
-        GIT_COMMITTER_EMAIL: `${username}@users.noreply.github.com`,
-        GIT_ASKPASS: 'echo',
-        GIT_ASKPASS_PASSWORD: token,
-    });
+// Custom random number generator
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-    if (n === 0) return git.push();
-    const x = random.int(0, 54);
-    const y = random.int(0, 6);
-    const DATE = moment().subtract(1, 'y').add(1, 'd')
-                         .add(x, 'w').add(y, 'd').format();
-    const data = {
-        date: DATE
-    };
-
-    console.log(DATE);
-    await jsonfile.writeFile(FILE_PATH, data);
-    await git.add([FILE_PATH]);
-    await git.commit(DATE, {'--date': DATE });
-    makeCommit(n - 1, year, username, token); // Continue with the next commit
-};
-
-app.post('/start-commit', (req, res) => {
-    const n = parseInt(req.body.commitCount, 10);
-    const year = parseInt(req.body.commitYear, 10);
-    const username = req.body.username;
-    const token = req.body.token;
-
-    if (isNaN(n) || n <= 0 || isNaN(year) || !username || !token) {
-        return res.status(400).send('Invalid input');
-    }
-    makeCommit(n, year, username, token);
-    res.send(`Started making ${n} commits for the year ${year}`);
+app.get('/', (req, res) => {
+    res.render('index');
 });
 
-const PORT = 3000;
+app.post('/start-commit', (req, res) => {
+    const { commitCount, commitYear, username, token } = req.body;
+
+    simpleGit.addConfig('user.name', username);
+    simpleGit.addConfig('user.email', `${username}@users.noreply.github.com`);
+    simpleGit.addConfig('hub.token', token);
+
+    const makeCommit = n => {
+        if (n == 0) return simpleGit.push();
+        const x = getRandomInt(0, 54);
+        const y = getRandomInt(0, 6);
+        const DATE = moment().year(commitYear).startOf('year').add(x, 'w').add(y, 'd').format();
+        const data = { date: DATE };
+
+        jsonfile.writeFile(FILE_PATH, data, () => {
+            simpleGit.add([FILE_PATH]).commit(DATE, { '--date': DATE }).then(() => {
+                return makeCommit(n - 1);
+            });
+        });
+    };
+
+    makeCommit(commitCount);
+    res.send('Commits started!');
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
