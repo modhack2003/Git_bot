@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Status</title>
+    <style>
+        /* Add CSS styles for the progress bar */
+        #progress-bar {
+            width: 300px; /* Set the initial width of the progress bar */
+            height: 30px; /* Set the height of the progress bar */
+            background-color: #f0f0f0;
+            position: relative; /* Position relative for containing the absolute progress */
+        }
+
+        #progress {
+            height: 100%; /* Cover the entire height of the progress bar */
+            width: 0; /* Start with 0% progress */
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            position: absolute; /* Position absolute to stretch across the entire width */
+            top: 0; /* Align to the top of the progress bar container */
+            left: 0; /* Align to the left of the progress bar container */
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar container -->
+    <div id="progress-bar">
+        <div id="progress">0%</div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('status', (message) => {
+            // Extract commit number from the message
+            const commitNumber = parseInt(message.split(': ')[1]);
+
+            
+            const percentage = (commitNumber / ) * 100;
+
+            // Update progress bar width dynamically
+            document.getElementById('progress').style.width = percentage + '%';
+
+            // Update progress bar text
+            document.getElementById('progress').textContent = `${percentage.toFixed(2)}%`;
+        });
+    </script>
+</body>
+</html>

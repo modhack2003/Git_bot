@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Status</title>
+</head>
+<body>
+    <div id="status-container"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Connect to the WebSocket server
+        const socket = io();
+
+        // Listen for status updates from the server
+        socket.on('status', (message) => {
+            // Update the status container with the received message
+            const statusContainer = document.getElementById('status-container');
+            statusContainer.innerHTML += `<p>${message}</p>`;
+        });
+    </script>
+</body>
+</html>
