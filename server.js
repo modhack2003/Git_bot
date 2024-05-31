@@ -7,14 +7,13 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const FILE_PATH = './data.json';
+const FILE_PATH = "./data.json";
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Custom random number generator
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -33,10 +32,16 @@ app.post('/start-commit', (req, res) => {
     simpleGit.addConfig('hub.token', token);
 
     const makeCommit = n => {
-        if (n == 0) return simpleGit.push();
+        if (n === 0) return simpleGit.push().then(() => {
+            console.log('Push successful!');
+        }).catch(error => {
+            console.error('Push failed:', error);
+        });
+        console.log(`Committing ${n} of ${commitCount}`);
         const x = getRandomInt(0, 54);
         const y = getRandomInt(0, 6);
         const DATE = moment().year(commitYear).startOf('year').add(x, 'w').add(y, 'd').format();
+        console.log(`Commit date: ${DATE}`);
         const data = { date: DATE };
 
         jsonfile.writeFile(FILE_PATH, data, () => {
