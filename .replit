@@ -11,10 +11,6 @@ channel = "stable-23_05"
 [unitTest]
 language = "nodejs"
 
-[deployment]
-run = ["sh", "-c", "nodemon server.js"]
-deploymentTarget = "cloudrun"
-ignorePorts = false
 
 [[ports]]
 localPort = 3000
