@@ -24,35 +24,43 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.post('/start-commit', (req, res) => {
+app.post('/start-commit', async (req, res) => {
     const { commitCount, commitYear, username, token } = req.body;
 
     simpleGit.addConfig('user.name', username);
     simpleGit.addConfig('user.email', `${username}@users.noreply.github.com`);
     simpleGit.addConfig('hub.token', token);
 
-    const makeCommit = n => {
-        if (n === 0) return simpleGit.push().then(() => {
-            console.log('Push successful!');
-        }).catch(error => {
-            console.error('Push failed:', error);
-        });
-        console.log(`Committing ${n} of ${commitCount}`);
-        const x = getRandomInt(0, 54);
-        const y = getRandomInt(0, 6);
-        const DATE = moment().year(commitYear).startOf('year').add(x, 'w').add(y, 'd').format();
-        console.log(`Commit date: ${DATE}`);
-        const data = { date: DATE };
+    const makeCommitsAndPush = async (n) => {
+        for (let i = 0; i < n; i++) {
+            console.log(`Committing ${i + 1} of ${commitCount}`);
+            const x = getRandomInt(0, 54);
+            const y = getRandomInt(0, 6);
+            const DATE = moment().year(commitYear).startOf('year').add(x, 'w').add(y, 'd').format();
+            console.log(`Commit date: ${DATE}`);
+            const data = { date: DATE };
 
-        jsonfile.writeFile(FILE_PATH, data, () => {
-            simpleGit.add([FILE_PATH]).commit(DATE, { '--date': DATE }).then(() => {
-                return makeCommit(n - 1);
+            await new Promise((resolve, reject) => {
+                jsonfile.writeFile(FILE_PATH, data, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
             });
-        });
+
+            await simpleGit.add([FILE_PATH]);
+            await simpleGit.commit(DATE, { '--date': DATE });
+        }
+
+        try {
+            await simpleGit.push();
+            console.log('Push successful!');
+        } catch (error) {
+            console.error('Push failed:', error);
+        }
     };
 
-    makeCommit(commitCount);
-    res.send('Commits started!');
+    makeCommitsAndPush(commitCount);
+    res.send('Commits and push started!');
 });
 
 app.listen(PORT, () => {
